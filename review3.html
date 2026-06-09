@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>单词探索 - 学习中心 | 单词复习 + 数学计算</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, sans-serif;
+            background: #0a0f2c;
+            transition: background 0.3s ease;
+        }
+
+        .exploration-bg {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, #0e1a2f, #03050b);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        /* 多种背景皮肤 */
+        .exploration-bg.bg-default { background: radial-gradient(circle at 20% 30%, #0e1a2f, #03050b); }
+        .exploration-bg.bg-ocean { background: radial-gradient(circle at 20% 30%, #1a3a5a, #0a1a3a); }
+        .exploration-bg.bg-purple { background: radial-gradient(circle at 20% 30%, #3a1a5a, #1a0a3a); }
+        .exploration-bg.bg-forest { background: radial-gradient(circle at 20% 30%, #1a5a3a, #0a3a1a); }
+        .exploration-bg.bg-sunset { background: radial-gradient(circle at 20% 30%, #5a3a1a, #3a1a0a); }
+        .exploration-bg.bg-cherry { background: radial-gradient(circle at 20% 30%, #5a1a3a, #3a0a1a); }
+        .exploration-bg.bg-ice { background: radial-gradient(circle at 20% 30%, #2a4a6a, #1a2a4a); }
+        .exploration-bg.bg-fire { background: radial-gradient(circle at 20% 30%, #6a2a1a, #4a1a0a); }
+        .exploration-bg.bg-magic { background: radial-gradient(circle at 20% 30%, #2a1a5a, #1a0a4a); }
+        .exploration-bg.bg-star { background: radial-gradient(circle at 20% 30%, #1a2a4a, #0a1a2a); }
+
+        #starCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .nebula, .nebula2 {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            filter: blur(60px);
+            z-index: 0;
+            animation: drift 24s infinite alternate ease-in-out;
+        }
+        .nebula { background: radial-gradient(circle at 40% 50%, rgba(60, 130, 200, 0.2), rgba(20, 30, 70, 0) 70%); top: 10%; left: -20%; }
+        .nebula2 { background: radial-gradient(circle at 70% 80%, rgba(160, 90, 210, 0.2), rgba(0, 0, 0, 0) 70%); bottom: -10%; right: -15%; left: auto; animation: drift2 28s infinite alternate; }
+        @keyframes drift { 0% { transform: translate(0,0) scale(1); opacity:0.5; } 100% { transform: translate(5%,8%) scale(1.2); opacity:0.8; } }
+        @keyframes drift2 { 0% { transform: translate(0,0) scale(1); opacity:0.4; } 100% { transform: translate(-6%,-5%) scale(1.3); opacity:0.7; } }
+
+        .button-panel {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 2rem;
+            backdrop-filter: blur(8px);
+            background: rgba(10,20,40,0.35);
+            border-radius: 80px;
+            border: 1px solid rgba(255,255,255,0.25);
+            animation: fadeSlideUp 1s ease forwards;
+            transition: all 0.3s;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .button-panel.skin-default { background: rgba(10,20,40,0.35); border-color: rgba(255,255,255,0.25); }
+        .button-panel.skin-gold { background: rgba(40,30,20,0.5); border-color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+        .button-panel.skin-purple { background: rgba(40,20,60,0.5); border-color: #cc88ff; box-shadow: 0 0 20px rgba(204,136,255,0.4); }
+        .button-panel.skin-green { background: rgba(20,50,30,0.5); border-color: #66ffaa; box-shadow: 0 0 20px rgba(102,255,170,0.4); }
+        .button-panel.skin-blue { background: rgba(20,40,70,0.5); border-color: #66ccff; box-shadow: 0 0 20px rgba(102,204,255,0.4); }
+        .button-panel.skin-red { background: rgba(70,20,20,0.5); border-color: #ff6666; box-shadow: 0 0 20px rgba(255,102,102,0.4); }
+        .button-panel.skin-rainbow { background: linear-gradient(45deg, rgba(255,0,0,0.3), rgba(255,165,0,0.3), rgba(255,255,0,0.3), rgba(0,255,0,0.3), rgba(0,0,255,0.3), rgba(75,0,130,0.3)); border-color: #ffdd88; }
+
+        @keyframes fadeSlideUp { 0% { opacity:0; transform:translateY(40px); } 100% { opacity:1; transform:translateY(0); } }
+        .explore-btn {
+            position: relative;
+            padding: 0.9rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            color: white;
+            transition: 0.3s;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.4);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .memory-btn { background: linear-gradient(125deg, rgba(0,200,220,0.8), rgba(0,100,210,0.9)); border:1px solid rgba(100,220,255,0.7); }
+        .shop-btn { background: linear-gradient(135deg, rgba(255,180,50,0.85), rgba(200,80,160,0.85)); border:1px solid rgba(255,200,100,0.7); }
+        .math-btn { background: linear-gradient(135deg, rgba(100,200,100,0.85), rgba(50,150,50,0.85)); border:1px solid rgba(100,255,100,0.7); }
+        .explore-btn:hover { transform: translateY(-3px) scale(1.02); filter: brightness(1.08); }
+        @media (max-width:650px) { .explore-btn { padding:0.7rem 1.2rem; font-size:1rem; } .button-panel { gap:1rem; padding:0.8rem 1rem; } }
+
+        /* 卡片样式 */
+        .mode-select-card, .word-config-card, .learning-panel, .quiz-panel, .shop-panel, .math-panel {
+            position: relative;
+            z-index: 20;
+            background: rgba(12,20,35,0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 900px;
+            border: 1px solid rgba(100,180,250,0.6);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.5);
+            animation: fadeScaleUp 0.5s ease;
+        }
+        .shop-panel { max-width: 950px; max-height: 85vh; overflow-y: auto; }
+        .shop-panel::-webkit-scrollbar { width: 8px; }
+        .shop-panel::-webkit-scrollbar-track { background: #1e2a3e; border-radius: 10px; }
+        .shop-panel::-webkit-scrollbar-thumb { background: #ffd966; border-radius: 10px; }
+        .math-panel { max-width: 550px; }
+        @keyframes fadeScaleUp { from { opacity:0; transform:scale(0.96); } to { opacity:1; transform:scale(1); } }
+        
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg,#fff,#aad0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+        .desc-text { text-align: center; color: #e0f0ff; margin-bottom: 1rem; font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 28px; }
+        .mode-buttons { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
+        .mode-btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            background: rgba(30,40,70,0.9);
+            border: 1px solid rgba(255,215,0,0.5);
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mode-btn.active { background: linear-gradient(105deg,#2b6ef0,#9b4dff); box-shadow:0 0 15px #3b82f6; border-color:white; }
+        .input-group { margin-bottom: 1rem; }
+        .quantity-input { width:100%; padding:0.8rem; font-size:1.2rem; background:rgba(5,10,25,0.7); border:2px solid #4c8eff; border-radius:48px; color:white; text-align:center; }
+        .button-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; }
+        .action-btn { padding:0.7rem 1.5rem; border-radius:48px; font-weight:bold; font-size:0.95rem; background:rgba(80,90,120,0.8); color:white; cursor:pointer; border:none; transition:0.2s; }
+        .action-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        .btn-primary { background: linear-gradient(105deg,#2b6ef0,#9b4dff); }
+
+        /* 学习面板 */
+        .progress-area { display: flex; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .word-counter { background:#00000066; padding:4px 12px; border-radius:50px; color:#ffdf9c; font-size:0.9rem; font-weight:bold; }
+        .word-title { font-size: 2.2rem; font-weight:800; text-align:center; margin:0.8rem auto; color:#FFE5B4; cursor: pointer; background:rgba(0,0,0,0.4); padding:10px 20px; border-radius:60px; display: inline-block; width: auto; transition: 0.2s; }
+        .word-title:hover { background: rgba(100,150,255,0.5); transform: scale(1.02); }
+        .word-meaning { text-align:center; font-size:1.3rem; background: #1e2a3acc; padding:0.8rem; border-radius:48px; margin-bottom:0.8rem; color: #FFE484; font-weight: 600; border: 2px solid #ffd96680; }
+        .image-area { text-align: center; margin: 0.8rem 0; background: rgba(0,0,0,0.4); border-radius: 28px; padding: 0.8rem; min-height: 130px; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .image-area div:first-child { font-size: 4rem !important; }
+        .deep-content { background: rgba(20,30,55,0.85); border-radius: 28px; padding: 0.8rem; margin: 0.8rem 0; text-align: left; color: #F0F9FF; font-size: 0.9rem; border-left: 5px solid #FFB347; }
+        .deep-content p { margin: 6px 0; line-height: 1.4; }
+        .learning-actions { display: flex; justify-content: center; gap: 0.8rem; flex-wrap: wrap; margin-top: 1rem; }
+        .ctrl-btn { padding:0.6rem 1.2rem; border-radius:50px; background:#2d466e; color:white; cursor:pointer; border:none; font-size:0.9rem; font-weight:bold; transition:0.2s; }
+        .ctrl-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .ctrl-btn-next { background:linear-gradient(120deg,#2c7da0,#1f6392); }
+        .ctrl-btn-speak { background:#1f5e3c; }
+
+        /* 测验面板 */
+        .quiz-question { font-size: 1.3rem; text-align: center; margin: 0.8rem 0; color: #FFE5B4; font-weight: bold; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; margin: 1rem 0; }
+        .quiz-option { background: rgba(30,40,70,0.8); border: 2px solid rgba(255,215,0,0.5); border-radius: 60px; padding: 10px 16px; font-size: 1rem; color: white; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .quiz-option:hover { background: rgba(60,80,120,0.9); transform: translateX(5px); border-color: #ffd966; }
+        .quiz-feedback { text-align: center; margin-top: 0.8rem; font-size: 0.9rem; padding: 6px; border-radius: 40px; font-weight: bold; }
+        .quiz-feedback.correct { background: #2e7d32cc; color: #ccffcc; }
+        .quiz-feedback.wrong { background: #c62828cc; color: #ffcccc; }
+        .listen-btn { background: #ff9800; border: none; color: white; padding: 8px 20px; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; margin: 8px auto; display: inline-block; }
+        
+        /* 商店面板滚动样式 */
+        .shop-sections { display: flex; flex-direction: column; gap: 20px; }
+        .shop-section { background: rgba(0,0,0,0.3); border-radius: 1.2rem; padding: 12px; }
+        .shop-section-title { font-size: 1.2rem; font-weight: bold; color: #ffd966; margin-bottom: 10px; padding-left: 8px; border-left: 4px solid #ffd966; }
+        .shop-items { display: flex; flex-direction: column; gap: 10px; }
+        .shop-item { background: rgba(30,40,70,0.6); border-radius: 1rem; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid rgba(255,215,0,0.3); }
+        .shop-item-info { flex: 2; }
+        .shop-item-name { font-size: 1rem; font-weight: bold; color: #FFE484; }
+        .shop-item-desc { font-size: 0.75rem; color: #ccc; }
+        .shop-item-price { font-size: 0.9rem; font-weight: bold; color: #ffaa66; }
+        .shop-item-btns { display: flex; gap: 6px; }
+        .shop-item-btn { background: #2b6ef0; border: none; padding: 6px 14px; border-radius: 40px; color: white; font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .shop-item-btn.owned { background: #4caf50; cursor: default; opacity: 0.7; }
+        .shop-item-btn.equip { background: #ff9800; }
+        .shop-item-btn.equip:hover:not(.active-equip) { transform: scale(1.02); background: #ffb74d; }
+        .shop-item-btn.active-equip { background: #2e7d32; cursor: default; opacity: 0.8; }
+        
+        /* 数学面板 */
+        .math-options { display: flex; flex-direction: column; gap: 12px; margin: 15px 0; }
+        .math-type-item { background: rgba(30,40,70,0.6); border-radius: 1rem; padding: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border: 1px solid rgba(255,215,0,0.3); }
+        .math-type-name { font-size: 1.1rem; font-weight: bold; color: #FFE484; }
+        .math-question-area { text-align: center; margin: 20px 0; }
+        .math-question-text { font-size: 1.8rem; font-weight: bold; color: #FFE5B4; margin-bottom: 15px; }
+        .math-input { padding: 10px; font-size: 1.2rem; text-align: center; border-radius: 48px; border: 2px solid #4c8eff; background: rgba(5,10,25,0.7); color: white; width: 80%; margin: 0 auto; }
+        
+        .level-bar { display: flex; align-items: center; gap: 12px; background: #00000066; padding: 5px 12px; border-radius: 60px; margin-bottom: 12px; flex-wrap: wrap; }
+        .level-text { color: #FFE484; font-weight: bold; font-size: 0.85rem; }
+        .exp-bar-container { background: #2c3e4e; border-radius: 20px; height: 6px; width: 120px; overflow: hidden; }
+        .exp-bar-fill { background: linear-gradient(90deg, #f0b27a, #f7dc6f); width: 0%; height: 100%; border-radius: 20px; }
+        
+        .toast-msg { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#000000dd; backdrop-filter:blur(12px); color:#FFE484; padding:8px 20px; border-radius:60px; z-index:200; opacity:0; transition:0.2s; pointer-events:none; font-size:0.9rem; white-space:nowrap; }
+        .toast-msg.show { opacity:1; transform:translateX(-50%) scale(1); }
+        @media (max-width:700px) { 
+            .word-title { font-size: 1.6rem; } 
+            .word-meaning { font-size: 1rem; }
+            .math-question-text { font-size: 1.3rem; }
+            .toast-msg { white-space: normal; width: 80%; text-align: center; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="exploration-bg bg-default" id="explorationBg">
+    <div class="nebula"></div>
+    <div class="nebula2"></div>
+    <canvas id="starCanvas"></canvas>
+    <div id="mainButtonPanel" class="button-panel skin-default">
+        <button class="explore-btn memory-btn" id="memoryWordBtn">📖 记忆单词</button>
+        <button class="explore-btn math-btn" id="mathBtn">🧮 数学计算</button>
+        <button class="explore-btn shop-btn" id="shopBtn">🎁 皮肤商店</button>
+    </div>
+    <div id="dynamicPanelContainer" class="dynamic-container" style="display: none;"></div>
+</div>
+<div id="toastMsg" class="toast-msg">✨ 学习中心 · 单词+数学双修 ✨</div>
+
+<script>
+    (function(){
+        // ================= 星空背景 =================
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, stars=[], shootingStars=[];
+        const STAR_COUNT=220;
+        class Star {
+            constructor(x,y,r,a,sx,sy,tw){ this.x=x;this.y=y;this.r=r;this.a=a;this.sx=sx||0;this.sy=sy||0;this.tw=tw||0.005+Math.random()*0.02;this.phase=Math.random()*Math.PI*2;this.oa=a;}
+            update(){ this.x+=this.sx*0.2; this.y+=this.sy*0.2; if(this.x<-10)this.x=width+10; if(this.x>width+10)this.x=-10; if(this.y<-10)this.y=height+10; if(this.y>height+10)this.y=-10; this.phase+=this.tw; this.a=this.oa+Math.sin(this.phase)*0.25; this.a=Math.min(0.95,Math.max(0.2,this.a));}
+            draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,240,200,${this.a})`; ctx.fill(); if(this.r>1.2){ ctx.beginPath(); ctx.arc(this.x,this.y,this.r*0.4,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,210,${this.a*0.8})`; ctx.fill();}}
+        }
+        class ShootingStar{ constructor(){ this.active=true; this.x=Math.random()*width; this.y=Math.random()*height*0.4; this.vx=(Math.random()-0.5)*4-1.5; this.vy=(Math.random()+1)*3.5; this.len=8+Math.random()*12; this.alpha=0.8; this.decay=0.98;}
+        update(){ this.x+=this.vx; this.y+=this.vy; this.alpha*=this.decay; if(this.x>width+50||this.x<-50||this.y>height+100||this.alpha<0.02) this.active=false;}
+        draw(){ if(!this.active)return; ctx.beginPath(); ctx.moveTo(this.x,this.y); ctx.lineTo(this.x-this.vx*this.len,this.y-this.vy*this.len); ctx.strokeStyle=`rgba(255,220,150,${this.alpha*0.9})`; ctx.lineWidth=2; ctx.stroke(); ctx.beginPath(); ctx.arc(this.x,this.y,2,0,Math.PI*2); ctx.fillStyle=`rgba(255,210,100,${this.alpha})`; ctx.fill();}}
+        function initStars(){ stars=[]; for(let i=0;i<STAR_COUNT;i++){ let r=Math.random()*2+0.8; let x=Math.random()*width, y=Math.random()*height; let a=0.3+Math.random()*0.6; let sx=(Math.random()-0.5)*0.25, sy=(Math.random()-0.5)*0.25; stars.push(new Star(x,y,r,a,sx,sy));}}
+        function drawStars(){ for(let s of stars){ s.update(); s.draw(); }}
+        function updateShootingStars(){ if(Math.random()<0.004 && shootingStars.length<5) shootingStars.push(new ShootingStar()); for(let i=0;i<shootingStars.length;i++){ shootingStars[i].update(); shootingStars[i].draw(); if(!shootingStars[i].active) shootingStars.splice(i,1),i--;}}
+        function animate(){ if(!ctx)return; ctx.clearRect(0,0,width,height); ctx.fillStyle='rgba(5, 8, 25, 0.5)'; ctx.fillRect(0,0,width,height); drawStars(); updateShootingStars(); requestAnimationFrame(animate);}
+        function resize(){ width=window.innerWidth; height=window.innerHeight; canvas.width=width; canvas.height=height; initStars();}
+        window.addEventListener('resize',resize); resize(); animate();
+
+        // ================= UI 控制 =================
+        const mainPanel = document.getElementById('mainButtonPanel');
+        const explorationBg = document.getElementById('explorationBg');
+        const dynamicContainer = document.getElementById('dynamicPanelContainer');
+        const memoryBtn = document.getElementById('memoryWordBtn');
+        const shopBtn = document.getElementById('shopBtn');
+        const mathBtn = document.getElementById('mathBtn');
+        const toastEl = document.getElementById('toastMsg');
+        let toastTimer=null;
+        function showMessage(msg, dur=1800){ if(toastTimer)clearTimeout(toastTimer); toastEl.textContent=msg; toastEl.classList.add('show'); toastTimer=setTimeout(()=>toastEl.classList.remove('show'),dur); }
+        function speakWord(word) { if (!window.speechSynthesis) { showMessage("⚠️ 浏览器不支持语音", 2000); return; } window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(word); utterance.lang = 'en-US'; utterance.rate = 0.85; window.speechSynthesis.speak(utterance); }
+
+        // ================= 词库 =================
+        const rawWords = ["our","animal","bear","horse","can","run","fast","bird","beautiful","panda","bag","hat","these","small","ear","eye","baby","lovely","see","all","those","brown","long","leg","like","grass","ride","cool","face","guess","jump","mouth","carrot","meat","no","not","isn't","tiger","Mr.","mouse","together","nose","clothes","size","do","wear","PE","put on","team","T-shirt","swim","whose","shirt","sports ground","bike","where","sweater","room","bed","under","chair","very","much","you're","dear","put away","box","sport","shoe","forest","can't","skirt","shorts","want","time","eleven","o'clock","hotel","Tokyo","Moscow","Paris","London","clock","twelve","sun","push","New York","thirty","a.m.","p.m.","read","kid","with","toy","eighteen","watch","TV","twenty","homework","dinner","thirteen","fourteen","fifteen","sixteen","seventeen","nineteen","use","picture","healthy","eat","breakfast","hungry","milk","bread","today","about","some","juice","lunch","hamburger","salad","drink","help","glass","of","favorite","sweet","fruit","Chinese","food","idea","rice","soup","chicken","vegetable"];
+        const meaningMap = { "our":"我们的","animal":"动物","bear":"熊","horse":"马","can":"能；可以","run":"跑","fast":"快速地","bird":"鸟","beautiful":"美丽的","panda":"熊猫","bag":"包","hat":"帽子","these":"这些","small":"小的","ear":"耳朵","eye":"眼睛","baby":"婴儿","lovely":"可爱的","see":"看见","all":"全部","those":"那些","brown":"棕色的","long":"长的","leg":"腿","like":"喜欢","grass":"草","ride":"骑","cool":"酷的","face":"脸","guess":"猜","jump":"跳","mouth":"嘴巴","carrot":"胡萝卜","meat":"肉","no":"不","not":"不是","isn't":"不是","tiger":"老虎","Mr.":"先生","mouse":"老鼠","together":"一起","nose":"鼻子","clothes":"衣服","size":"尺寸","do":"做","wear":"穿","PE":"体育","put on":"穿上","team":"团队","T-shirt":"T恤","swim":"游泳","whose":"谁的","shirt":"衬衫","sports ground":"运动场","bike":"自行车","where":"哪里","sweater":"毛衣","room":"房间","bed":"床","under":"在...下面","chair":"椅子","very":"非常","much":"多","you're":"你是","dear":"亲爱的","put away":"收好","box":"盒子","sport":"运动","shoe":"鞋子","forest":"森林","can't":"不能","skirt":"裙子","shorts":"短裤","want":"想要","time":"时间","eleven":"十一","o'clock":"点钟","hotel":"酒店","Tokyo":"东京","Moscow":"莫斯科","Paris":"巴黎","London":"伦敦","clock":"时钟","twelve":"十二","sun":"太阳","push":"推","New York":"纽约","thirty":"三十","a.m.":"上午","p.m.":"下午","read":"阅读","kid":"小孩","with":"和...一起","toy":"玩具","eighteen":"十八","watch":"手表","TV":"电视","twenty":"二十","homework":"家庭作业","dinner":"晚餐","thirteen":"十三","fourteen":"十四","fifteen":"十五","sixteen":"十六","seventeen":"十七","nineteen":"十九","use":"使用","picture":"图片","healthy":"健康的","eat":"吃","breakfast":"早餐","hungry":"饥饿的","milk":"牛奶","bread":"面包","today":"今天","about":"关于","some":"一些","juice":"果汁","lunch":"午餐","hamburger":"汉堡包","salad":"沙拉","drink":"喝","help":"帮助","glass":"玻璃杯","of":"的","favorite":"最喜欢的","sweet":"甜的","fruit":"水果","Chinese":"中国的；中文","food":"食物","idea":"主意","rice":"米饭","soup":"汤","chicken":"鸡肉","vegetable":"蔬菜" };
+        const fullWordBank = rawWords.map(word => ({ word: word, meaning: meaningMap[word] || word, phrases: `${word} 常用搭配`, sentences: `I like ${word}.`, tips: `联想记忆: ${word}` }));
+
+        // ================= 等级系统 =================
+        const rankNames = ["青铜","白银","黄金","铂金","钻石"];
+        let levelsList = [];
+        for(let r=0; r<rankNames.length; r++) { for(let s=0; s<5; s++) { let expReq = (r*5 + s) * 28 + (s===0?0: (s===1?35: (s===2?80: (s===3?135:200)))); if(r>0) expReq = levelsList[levelsList.length-1].expRequired + 30 + s*8; levelsList.push({ rank: rankNames[r], sub: s+1, roman: ["I","II","III","IV","V"][s], expRequired: expReq, display: `${rankNames[r]} ${["I","II","III","IV","V"][s]}` }); } }
+        levelsList[0].expRequired = 0;
+        let currentExp = 0;
+        function getCurrentLevel() { for(let i=levelsList.length-1;i>=0;i--) if(currentExp>=levelsList[i].expRequired) return levelsList[i]; return levelsList[0]; }
+        function addExp(expGain) { currentExp += expGain; let newLvl=getCurrentLevel(); showMessage(`✨ +${expGain}积分 ✨ ${newLvl.display}`, 1500); return newLvl; }
+        function getExpPercent() { let cur=getCurrentLevel(); let idx=levelsList.findIndex(l=>l.display===cur.display); let next=levelsList[idx+1]; if(!next) return 100; return ((currentExp-cur.expRequired)/(next.expRequired-cur.expRequired))*100; }
+
+        // ================= 商店系统 =================
+        let ownedBgSkins = new Set(); let ownedBtnSkins = new Set();
+        let activeBgSkin = 'bg-default'; let activeBtnSkin = 'skin-default';
+        const bgSkins = [
+            { id: 'bg-default', name: '🌌 默认星空', desc: '深邃的紫色星空', price: 0, apply: () => { explorationBg.className = 'exploration-bg bg-default'; activeBgSkin = 'bg-default'; saveData(); } },
+            { id: 'bg-ocean', name: '🌊 深海蓝调', desc: '深邃海洋风格', price: 50, apply: () => { explorationBg.className = 'exploration-bg bg-ocean'; activeBgSkin = 'bg-ocean'; saveData(); } },
+            { id: 'bg-purple', name: '🌸 紫罗兰之梦', desc: '梦幻紫色星空', price: 80, apply: () => { explorationBg.className = 'exploration-bg bg-purple'; activeBgSkin = 'bg-purple'; saveData(); } },
+            { id: 'bg-forest', name: '🌿 翠绿仙境', desc: '清新绿色森林', price: 100, apply: () => { explorationBg.className = 'exploration-bg bg-forest'; activeBgSkin = 'bg-forest'; saveData(); } },
+            { id: 'bg-sunset', name: '🌅 落日余晖', desc: '温暖橙色黄昏', price: 120, apply: () => { explorationBg.className = 'exploration-bg bg-sunset'; activeBgSkin = 'bg-sunset'; saveData(); } },
+            { id: 'bg-cherry', name: '🌸 樱花漫舞', desc: '浪漫粉色樱花', price: 130, apply: () => { explorationBg.className = 'exploration-bg bg-cherry'; activeBgSkin = 'bg-cherry'; saveData(); } },
+            { id: 'bg-ice', name: '❄️ 冰雪王国', desc: '冰蓝极寒世界', price: 140, apply: () => { explorationBg.className = 'exploration-bg bg-ice'; activeBgSkin = 'bg-ice'; saveData(); } },
+            { id: 'bg-fire', name: '🔥 烈焰之心', desc: '炽热红色火焰', price: 150, apply: () => { explorationBg.className = 'exploration-bg bg-fire'; activeBgSkin = 'bg-fire'; saveData(); } },
+            { id: 'bg-magic', name: '✨ 魔法星空', desc: '神秘紫色魔法', price: 160, apply: () => { explorationBg.className = 'exploration-bg bg-magic'; activeBgSkin = 'bg-magic'; saveData(); } },
+            { id: 'bg-star', name: '⭐ 星河璀璨', desc: '璀璨银河星空', price: 180, apply: () => { explorationBg.className = 'exploration-bg bg-star'; activeBgSkin = 'bg-star'; saveData(); } }
+        ];
+        const btnSkins = [
+            { id: 'skin-default', name: '✨ 默认风格', desc: '简洁透明面板', price: 0, apply: () => { mainPanel.className = 'button-panel skin-default'; activeBtnSkin = 'skin-default'; saveData(); } },
+            { id: 'skin-gold', name: '👑 金色光辉', desc: '华丽金色边框', price: 60, apply: () => { mainPanel.className = 'button-panel skin-gold'; activeBtnSkin = 'skin-gold'; saveData(); } },
+            { id: 'skin-purple', name: '💜 魔法紫韵', desc: '神秘紫色特效', price: 90, apply: () => { mainPanel.className = 'button-panel skin-purple'; activeBtnSkin = 'skin-purple'; saveData(); } },
+            { id: 'skin-green', name: '💚 翡翠之光', desc: '清新绿色特效', price: 110, apply: () => { mainPanel.className = 'button-panel skin-green'; activeBtnSkin = 'skin-green'; saveData(); } },
+            { id: 'skin-blue', name: '💙 深海之蓝', desc: '深邃蓝色特效', price: 120, apply: () => { mainPanel.className = 'button-panel skin-blue'; activeBtnSkin = 'skin-blue'; saveData(); } },
+            { id: 'skin-red', name: '❤️ 赤红之怒', desc: '热情红色特效', price: 130, apply: () => { mainPanel.className = 'button-panel skin-red'; activeBtnSkin = 'skin-red'; saveData(); } },
+            { id: 'skin-rainbow', name: '🌈 彩虹幻梦', desc: '七彩渐变特效', price: 200, apply: () => { mainPanel.className = 'button-panel skin-rainbow'; activeBtnSkin = 'skin-rainbow'; saveData(); } }
+        ];
+        function saveData() { localStorage.setItem('wordExplorer_ownedBg', JSON.stringify([...ownedBgSkins])); localStorage.setItem('wordExplorer_ownedBtn', JSON.stringify([...ownedBtnSkins])); localStorage.setItem('wordExplorer_activeBg', activeBgSkin); localStorage.setItem('wordExplorer_activeBtn', activeBtnSkin); localStorage.setItem('wordExplorer_exp', currentExp); }
+        function loadSkinData() {
+            let savedBg = localStorage.getItem('wordExplorer_ownedBg'); if(savedBg) { try { let arr = JSON.parse(savedBg); ownedBgSkins = new Set(arr); } catch(e) {} }
+            let savedBtn = localStorage.getItem('wordExplorer_ownedBtn'); if(savedBtn) { try { let arr = JSON.parse(savedBtn); ownedBtnSkins = new Set(arr); } catch(e) {} }
+            let savedActiveBg = localStorage.getItem('wordExplorer_activeBg'); if(savedActiveBg) { activeBgSkin = savedActiveBg; let bg = bgSkins.find(s => s.id === activeBgSkin); if(bg) bg.apply(); else explorationBg.className = 'exploration-bg bg-default'; }
+            let savedActiveBtn = localStorage.getItem('wordExplorer_activeBtn'); if(savedActiveBtn) { activeBtnSkin = savedActiveBtn; let btn = btnSkins.find(s => s.id === activeBtnSkin); if(btn) btn.apply(); else mainPanel.className = 'button-panel skin-default'; }
+            let savedExp = localStorage.getItem('wordExplorer_exp'); if(savedExp) currentExp = parseInt(savedExp) || 0;
+            ownedBgSkins.add('bg-default'); ownedBtnSkins.add('skin-default');
+        }
+        function renderShop() {
+            dynamicContainer.style.display = 'flex';
+            let level = getCurrentLevel(), percent = getExpPercent();
+            let bgItemsHtml = ''; bgSkins.forEach(skin => { let isOwned = ownedBgSkins.has(skin.id), isActive = (activeBgSkin === skin.id); let btnHtml = (skin.price === 0 || isOwned) ? `<button class="shop-item-btn ${isActive ? 'active-equip' : 'equip'}" data-type="bg" data-id="${skin.id}" ${isActive ? 'disabled' : ''}>${isActive ? '✅ 使用中' : '✨ 使用'}</button>` : `<button class="shop-item-btn" data-type="bg_buy" data-id="${skin.id}" data-price="${skin.price}">💰 购买 ${skin.price}</button>`; bgItemsHtml += `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${skin.name}</div><div class="shop-item-desc">${skin.desc}</div></div><div class="shop-item-price">${isOwned ? '✅ 已拥有' : `💰 ${skin.price} 积分`}</div><div class="shop-item-btns">${btnHtml}</div></div>`; });
+            let btnItemsHtml = ''; btnSkins.forEach(skin => { let isOwned = ownedBtnSkins.has(skin.id), isActive = (activeBtnSkin === skin.id); let btnHtml = (skin.price === 0 || isOwned) ? `<button class="shop-item-btn ${isActive ? 'active-equip' : 'equip'}" data-type="btn" data-id="${skin.id}" ${isActive ? 'disabled' : ''}>${isActive ? '✅ 使用中' : '✨ 使用'}</button>` : `<button class="shop-item-btn" data-type="btn_buy" data-id="${skin.id}" data-price="${skin.price}">💰 购买 ${skin.price}</button>`; btnItemsHtml += `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${skin.name}</div><div class="shop-item-desc">${skin.desc}</div></div><div class="shop-item-price">${isOwned ? '✅ 已拥有' : `💰 ${skin.price} 积分`}</div><div class="shop-item-btns">${btnHtml}</div></div>`; });
+            dynamicContainer.innerHTML = `<div class="shop-panel"><div class="level-bar"><span class="level-text">🏆 ${level.display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${percent}%"></div></div><span class="level-text">💰 我的积分: ${currentExp}</span></div><div class="card-title">🎁 皮肤商店</div><div class="desc-text">使用积分购买精美皮肤，所有已购皮肤永久保存，可随时切换！</div><div class="shop-sections"><div class="shop-section"><div class="shop-section-title">🌍 背景皮肤</div><div class="shop-items">${bgItemsHtml}</div></div><div class="shop-section"><div class="shop-section-title">🎛️ 按钮面板皮肤</div><div class="shop-items">${btnItemsHtml}</div></div></div><div class="button-group"><button id="backFromShopBtn" class="action-btn btn-primary">🏠 返回首页</button></div></div>`;
+            document.querySelectorAll('.shop-item-btn').forEach(btn => { let type = btn.getAttribute('data-type');
+                if(type === 'bg_buy') btn.addEventListener('click', () => { let id = btn.getAttribute('data-id'), price = parseInt(btn.getAttribute('data-price')), skin = bgSkins.find(s => s.id === id); if(currentExp >= price) { currentExp -= price; ownedBgSkins.add(id); showMessage(`🎉 购买成功！获得 ${skin.name}`, 1500); renderShop(); saveData(); } else showMessage(`❌ 积分不足！需要 ${price} 积分，当前 ${currentExp} 积分`, 1500); });
+                else if(type === 'btn_buy') btn.addEventListener('click', () => { let id = btn.getAttribute('data-id'), price = parseInt(btn.getAttribute('data-price')), skin = btnSkins.find(s => s.id === id); if(currentExp >= price) { currentExp -= price; ownedBtnSkins.add(id); showMessage(`🎉 购买成功！获得 ${skin.name}`, 1500); renderShop(); saveData(); } else showMessage(`❌ 积分不足！需要 ${price} 积分，当前 ${currentExp} 积分`, 1500); });
+                else if(type === 'bg') btn.addEventListener('click', () => { let id = btn.getAttribute('data-id'), skin = bgSkins.find(s => s.id === id); skin.apply(); activeBgSkin = id; showMessage(`✨ 已切换至 ${skin.name}`, 1000); renderShop(); saveData(); });
+                else if(type === 'btn') btn.addEventListener('click', () => { let id = btn.getAttribute('data-id'), skin = btnSkins.find(s => s.id === id); skin.apply(); activeBtnSkin = id; showMessage(`✨ 已切换至 ${skin.name}`, 1000); renderShop(); saveData(); });
+            });
+            document.getElementById('backFromShopBtn').onclick = backToMainMenu;
+        }
+
+        // ================= 数学计算模块 =================
+        let mathActive = false, mathQuestions = [], mathCurrentIndex = 0, mathScore = 0, mathTotal = 0;
+        function generateMathQuestion(type) {
+            switch(type) {
+                case 'multi_multi': // 多位数×多位数 (两位数乘两位数)
+                    let a = Math.floor(Math.random() * 90) + 10, b = Math.floor(Math.random() * 90) + 10;
+                    return { text: `${a} × ${b} = ?`, answer: a * b };
+                case 'decimal_addsub': // 小数加减法
+                    let d1 = (Math.floor(Math.random() * 900) + 100) / 100, d2 = (Math.floor(Math.random() * 900) + 100) / 100;
+                    let op = Math.random() > 0.5 ? '+' : '-';
+                    let ans = op === '+' ? d1 + d2 : d1 - d2;
+                    return { text: `${d1} ${op} ${d2} = ?`, answer: Math.round(ans * 100) / 100 };
+                case 'frac_addsub': // 分数加减法 (同分母简化)
+                    let den = Math.floor(Math.random() * 8) + 2, num1 = Math.floor(Math.random() * (den-1)) + 1, num2 = Math.floor(Math.random() * (den-1)) + 1;
+                    let op2 = Math.random() > 0.5 ? '+' : '-';
+                    let numAns = op2 === '+' ? num1 + num2 : num1 - num2;
+                    if(numAns <= 0) { numAns = num1 + num2; }
+                    return { text: `${num1}/${den} ${op2} ${num2}/${den} = ?`, answer: `${numAns}/${den}` };
+                case 'multi_one': // 多位数×一位数
+                    let m1 = Math.floor(Math.random() * 900) + 100, m2 = Math.floor(Math.random() * 9) + 1;
+                    return { text: `${m1} × ${m2} = ?`, answer: m1 * m2 };
+                case 'div_one': // 多位数÷一位数 (整除)
+                    let divisor = Math.floor(Math.random() * 9) + 2;
+                    let quotient = Math.floor(Math.random() * 100) + 10;
+                    let dividend = divisor * quotient;
+                    return { text: `${dividend} ÷ ${divisor} = ?`, answer: quotient };
+                default: return { text: "1 + 1 = ?", answer: 2 };
+            }
+        }
+        function startMathPractice(type, count) {
+            mathQuestions = [];
+            for(let i=0; i<count; i++) mathQuestions.push(generateMathQuestion(type));
+            mathCurrentIndex = 0; mathScore = 0; mathTotal = count;
+            renderMathQuestion();
+        }
+        function renderMathQuestion() {
+            if(mathCurrentIndex >= mathQuestions.length) {
+                let expEarned = mathScore * 3;
+                addExp(expEarned);
+                dynamicContainer.innerHTML = `<div class="math-panel" style="text-align:center;"><div class="card-title">🎉 数学练习完成 🎉</div><div class="word-meaning">正确: ${mathScore} / ${mathTotal}<br>获得积分: +${expEarned}</div><div class="button-group"><button id="mathRestartBtn" class="action-btn btn-primary">🔄 重新选题</button><button id="mathHomeBtn" class="action-btn">🏠 返回首页</button></div></div>`;
+                document.getElementById('mathRestartBtn')?.addEventListener('click', () => renderMathMenu());
+                document.getElementById('mathHomeBtn')?.addEventListener('click', backToMainMenu);
+                return;
+            }
+            let q = mathQuestions[mathCurrentIndex];
+            dynamicContainer.innerHTML = `<div class="math-panel"><div class="level-bar"><span>🏆 ${getCurrentLevel().display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${getExpPercent()}%"></div></div><span>💰 ${currentExp}积分</span></div><div class="card-title">🧮 数学计算挑战</div><div class="math-question-area"><div class="math-question-text">${q.text}</div><input type="text" id="mathAnswer" class="math-input" placeholder="输入答案..." autocomplete="off"></div><div class="progress-area"><span class="word-counter">进度 ${mathCurrentIndex+1}/${mathTotal}</span><span class="word-counter">每题+3分</span></div><div class="button-group"><button id="submitMathBtn" class="action-btn btn-primary">✏️ 提交答案</button></div></div>`;
+            document.getElementById('submitMathBtn').onclick = () => {
+                let input = document.getElementById('mathAnswer');
+                let userAnswer = input.value.trim();
+                let isCorrect = false;
+                if(String(q.answer) === userAnswer || (Math.abs(parseFloat(userAnswer) - q.answer) < 0.01 && !isNaN(parseFloat(userAnswer)))) {
+                    mathScore++; isCorrect = true;
+                    showMessage(`✅ 正确！ +3分`, 800);
+                } else { showMessage(`❌ 错误！ 正确答案: ${q.answer}`, 1000); }
+                mathCurrentIndex++;
+                renderMathQuestion();
+            };
+            document.getElementById('mathAnswer').onkeypress = (e) => { if(e.key === 'Enter') document.getElementById('submitMathBtn').click(); };
+        }
+        function renderMathMenu() {
+            dynamicContainer.style.display = 'flex';
+            dynamicContainer.innerHTML = `<div class="math-panel"><div class="card-title">🧮 数学计算练习</div><div class="desc-text">选择题型和题量，每题正确+3积分</div><div class="math-options"><div class="math-type-item"><span class="math-type-name">📐 多位数×多位数 (两位数乘两位数)</span><button class="action-btn" data-type="multi_multi">选择</button></div><div class="math-type-item"><span class="math-type-name">📊 小数加减法 (两位小数)</span><button class="action-btn" data-type="decimal_addsub">选择</button></div><div class="math-type-item"><span class="math-type-name">📏 分数加减法 (同分母)</span><button class="action-btn" data-type="frac_addsub">选择</button></div><div class="math-type-item"><span class="math-type-name">🔢 多位数×一位数</span><button class="action-btn" data-type="multi_one">选择</button></div><div class="math-type-item"><span class="math-type-name">➗ 多位数÷一位数 (整除)</span><button class="action-btn" data-type="div_one">选择</button></div></div><div class="input-group"><label>📝 题目数量 (1-20)</label><input type="number" id="mathCount" class="quantity-input" value="5" min="1" max="20"></div><div class="button-group"><button id="backFromMathBtn" class="action-btn btn-primary">🏠 返回首页</button></div></div>`;
+            document.querySelectorAll('.math-type-item .action-btn').forEach(btn => {
+                btn.addEventListener('click', () => { let type = btn.getAttribute('data-type'); let count = parseInt(document.getElementById('mathCount').value,10) || 5; count = Math.min(20, Math.max(1, count)); startMathPractice(type, count); });
+            });
+            document.getElementById('backFromMathBtn').onclick = backToMainMenu;
+        }
+
+        // ================= 单词复习模块 (精简但完整) =================
+        let currentMode = "image", currentWordsList = [], currentIndex = 0, learningActive = false, selectedQuantity = 10;
+        let quizQuestions = [], quizCurrentIndex = 0, quizScore = 0, listenQuestions = [], listenIndex = 0, listenScore = 0, transQuestions = [], transIndex = 0;
+        function backToMainMenu(){ learningActive=false; mathActive=false; dynamicContainer.style.display='none'; dynamicContainer.innerHTML=''; mainPanel.style.display='flex'; }
+        function getDistractors(correctWord, count=3) { let others = fullWordBank.filter(w => w.word !== correctWord).map(w => w.word); let shuffled = [...others]; for(let i=shuffled.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; } return shuffled.slice(0, count); }
+        function startRound2() { quizQuestions = []; for(let w of currentWordsList) { let distractors = getDistractors(w.word, 3); let options = [w.word, ...distractors]; for(let i=options.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [options[i],options[j]]=[options[j],options[i]]; } quizQuestions.push({ meaning: w.meaning, correct: w.word, options: options }); } quizCurrentIndex=0; quizScore=0; renderRound2(); }
+        function renderRound2() { if(quizCurrentIndex >= quizQuestions.length) { let exp=quizScore*5; addExp(exp); showMessage(`第二轮完成！获得${exp}积分`,1500); startRound3(); return; } let q = quizQuestions[quizCurrentIndex]; let level=getCurrentLevel(), percent=getExpPercent(); let optionsHtml=''; q.options.forEach(opt=>{ optionsHtml+=`<div class="quiz-option" data-word="${opt}">${opt}</div>`; }); dynamicContainer.innerHTML=`<div class="quiz-panel"><div class="level-bar"><span>🏆 ${level.display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${percent}%"></div></div><span>📊 得分: ${quizScore}</span></div><div class="card-title">📝 第二轮 · 中文选英文</div><div class="quiz-question">📖 "${q.meaning}" 的英文是？</div><div class="quiz-options">${optionsHtml}</div><div id="quizFeedback" class="quiz-feedback"></div><div class="progress-area"><span class="word-counter">进度 ${quizCurrentIndex+1}/${quizQuestions.length}</span></div></div>`; document.querySelectorAll('.quiz-option').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let selected=btn.getAttribute('data-word'), fb=document.getElementById('quizFeedback'); if(selected===q.correct){ quizScore+=5; fb.className='quiz-feedback correct'; fb.innerHTML='✅ 正确！ +5分'; showMessage('✅ 正确！ +5分',800); } else { fb.className='quiz-feedback wrong'; fb.innerHTML=`❌ 错误！ 正确答案: ${q.correct}`; showMessage(`❌ 正确答案: ${q.correct}`,1200); } quizCurrentIndex++; setTimeout(()=>renderRound2(),1200); }); }); }
+        function startRound3() { listenQuestions = [...currentWordsList]; for(let i=listenQuestions.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [listenQuestions[i],listenQuestions[j]]=[listenQuestions[j],listenQuestions[i]]; } listenIndex=0; listenScore=0; renderRound3(); }
+        function renderRound3() { if(listenIndex >= listenQuestions.length) { let exp=listenScore*2; addExp(exp); showMessage(`第三轮完成！获得${exp}积分`,1500); startRound4(); return; } let q = listenQuestions[listenIndex]; let distractors = getDistractors(q.word, 3); let options = [q.word, ...distractors]; for(let i=options.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [options[i],options[j]]=[options[j],options[i]]; } let level=getCurrentLevel(), percent=getExpPercent(); let optionsHtml=''; options.forEach(opt=>{ optionsHtml+=`<div class="quiz-option" data-word="${opt}">${opt}</div>`; }); dynamicContainer.innerHTML=`<div class="quiz-panel"><div class="level-bar"><span>🏆 ${level.display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${percent}%"></div></div><span>📊 得分: ${listenScore}</span></div><div class="card-title">🎧 第三轮 · 听音选词</div><div style="text-align:center;"><button id="listenPlayBtn" class="listen-btn">🔊 点击播放发音</button></div><div class="quiz-options">${optionsHtml}</div><div id="quizFeedback" class="quiz-feedback"></div><div class="progress-area"><span class="word-counter">进度 ${listenIndex+1}/${listenQuestions.length}</span></div></div>`; document.getElementById('listenPlayBtn').onclick = () => { speakWord(q.word); showMessage(`🔊 播放单词发音`,800); }; document.querySelectorAll('.quiz-option').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let selected=btn.getAttribute('data-word'), fb=document.getElementById('quizFeedback'); if(selected===q.word){ listenScore+=2; fb.className='quiz-feedback correct'; fb.innerHTML='✅ 正确！ +2分'; showMessage('✅ 正确！ +2分',800); } else { listenScore-=1; fb.className='quiz-feedback wrong'; fb.innerHTML=`❌ 错误！ 正确答案: ${q.word} -1分`; showMessage(`❌ 正确答案: ${q.word} -1分`,1200); } listenIndex++; setTimeout(()=>renderRound3(),1200); }); }); }
+        function startRound4() { transQuestions = [...currentWordsList]; for(let i=transQuestions.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [transQuestions[i],transQuestions[j]]=[transQuestions[j],transQuestions[i]]; } transIndex=0; renderRound4(); }
+        function renderRound4() { if(transIndex >= transQuestions.length) { showMessage(`🎉 恭喜完成全部四轮复习！🎉`,2500); dynamicContainer.innerHTML = `<div class="quiz-panel" style="text-align:center;"><div class="card-title">🎉 四轮复习全部完成 🎉</div><div class="word-meaning">恭喜你完成了所有单词的深度学习！</div><div class="level-bar" style="justify-content:center;"><span>🏆 ${getCurrentLevel().display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${getExpPercent()}%"></div></div></div><div class="button-group"><button id="quizRestartBtn" class="action-btn btn-primary">🔄 重新开始</button><button id="quizHomeBtn" class="action-btn">🏠 返回首页</button></div></div>`; document.getElementById('quizRestartBtn')?.addEventListener('click', () => { renderModeSelection(); }); document.getElementById('quizHomeBtn')?.addEventListener('click', backToMainMenu); return; } let q = transQuestions[transIndex]; let distractors = getDistractors(q.word, 3); let chineseMeanings = [q.meaning]; for(let d of distractors) { let found = fullWordBank.find(w => w.word === d); if(found) chineseMeanings.push(found.meaning); else chineseMeanings.push("未知"); } for(let i=chineseMeanings.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [chineseMeanings[i],chineseMeanings[j]]=[chineseMeanings[j],chineseMeanings[i]]; } let level=getCurrentLevel(), percent=getExpPercent(); let optionsHtml=''; chineseMeanings.forEach(opt=>{ optionsHtml+=`<div class="quiz-option" data-meaning="${opt}">${opt}</div>`; }); dynamicContainer.innerHTML=`<div class="quiz-panel"><div class="level-bar"><span>🏆 ${level.display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${percent}%"></div></div></div><div class="card-title">📖 第四轮 · 英文选中文</div><div class="quiz-question">🔤 "${q.word}" 的意思是？</div><div class="quiz-options">${optionsHtml}</div><div id="quizFeedback" class="quiz-feedback"></div><div class="progress-area"><span class="word-counter">进度 ${transIndex+1}/${transQuestions.length}</span></div></div>`; document.querySelectorAll('.quiz-option').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let selected=btn.getAttribute('data-meaning'), fb=document.getElementById('quizFeedback'); if(selected===q.meaning){ fb.className='quiz-feedback correct'; fb.innerHTML='✅ 正确！'; showMessage('✅ 正确！',800); } else { fb.className='quiz-feedback wrong'; fb.innerHTML=`❌ 错误！ 正确答案: ${q.meaning}`; showMessage(`❌ 正确答案: ${q.meaning}`,1200); } transIndex++; setTimeout(()=>renderRound4(),1200); }); }); }
+        function renderModeSelection() { dynamicContainer.style.display = 'flex'; dynamicContainer.innerHTML = `<div class="mode-select-card"><div class="card-title">📖 选择记忆模式</div><div class="desc-text">全新词库 · ${fullWordBank.length}个单词<br>四轮递进复习：学习→测验→听力→翻译，积分升级！</div><div class="mode-buttons"><button id="modeImageBtn" class="mode-btn ${currentMode === 'image' ? 'active' : ''}">🎨 图片记忆</button><button id="modeDeepBtn" class="mode-btn ${currentMode === 'deep' ? 'active' : ''}">🧠 深度拓展</button></div><div class="input-group"><label>📚 复习数量 (1-${fullWordBank.length})</label><input type="number" id="quantityInput" class="quantity-input" value="${selectedQuantity}" min="1" max="${fullWordBank.length}"></div><div class="button-group"><button id="confirmStartBtn" class="action-btn btn-primary">🚀 开始复习</button><button id="backMainFromModeBtn" class="action-btn">🌌 返回</button></div></div>`; document.getElementById('modeImageBtn').onclick = () => { currentMode = 'image'; renderModeSelection(); }; document.getElementById('modeDeepBtn').onclick = () => { currentMode = 'deep'; renderModeSelection(); }; document.getElementById('confirmStartBtn').onclick = () => { let qty = parseInt(document.getElementById('quantityInput').value,10)||10; qty = Math.min(fullWordBank.length,Math.max(1,qty)); selectedQuantity = qty; let shuffled=[...fullWordBank]; for(let i=shuffled.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]; } currentWordsList = shuffled.slice(0, selectedQuantity); currentIndex = 0; learningActive = true; showMessage(`✨ 第一轮复习: ${currentMode==='image'?'图片记忆':'深度拓展'}模式 · ${currentWordsList.length}个单词`,1500); renderLearningPanel(); }; document.getElementById('backMainFromModeBtn').onclick = backToMainMenu; }
+        function getSimpleImageSVG(word) { const emojiMap = { apple:"🍎", banana:"🍌", orange:"🍊", cat:"🐱", dog:"🐶", bird:"🐦", fish:"🐟", rabbit:"🐰", bear:"🐻", horse:"🐎", panda:"🐼", tiger:"🐯", mouse:"🐭" }; return `<div style="font-size:4rem;">${emojiMap[word.toLowerCase()] || "📖"}</div><div>${word}</div>`; }
+        function renderLearningPanel() { if(!learningActive || currentIndex >= currentWordsList.length){ if(currentIndex >= currentWordsList.length && currentWordsList.length>0){ showMessage(`🎉 第一轮复习完成！进入第二轮测验！`, 2000); startRound2(); return; } else { renderModeSelection(); return; } } const wordObj = currentWordsList[currentIndex]; const total = currentWordsList.length; let contentHtml = ''; if(currentMode === 'image') contentHtml = `<div class="image-area">${getSimpleImageSVG(wordObj.word)}</div><div class="word-meaning">📖 ${wordObj.meaning}</div><div style="text-align:center; font-size:0.9rem; color:#FFD966;">🔊 点击单词播放发音</div>`; else contentHtml = `<div class="deep-content"><p>📌 词组: ${wordObj.phrases}</p><p>📖 例句: ${wordObj.sentences}</p><p>💡 记忆法: ${wordObj.tips}</p></div><div class="word-meaning">🔤 ${wordObj.meaning}</div><div style="text-align:center; font-size:0.9rem; color:#FFD966;">🔊 点击单词聆听发音</div>`; let level = getCurrentLevel(), percent = getExpPercent(); dynamicContainer.innerHTML = `<div class="learning-panel"><div class="level-bar"><span>🏆 ${level.display}</span><div class="exp-bar-container"><div class="exp-bar-fill" style="width:${percent}%"></div></div></div><div class="progress-area"><span class="word-counter">📚 第一轮 进度 ${currentIndex+1}/${total}</span><span class="word-counter">🎯 ${currentMode==='image'?'图片模式':'深度模式'}</span><button id="speakWordBtn" class="ctrl-btn ctrl-btn-speak">🔊 发音</button></div><div id="clickableWord" class="word-title" style="cursor:pointer;">${escapeHtml(wordObj.word)}</div>${contentHtml}<div class="learning-actions"><button id="prevLearnBtn" class="ctrl-btn" ${currentIndex===0?'disabled':''}>◀ 上一个</button><button id="nextLearnBtn" class="ctrl-btn ctrl-btn-next">下一个 ▶</button><button id="switchModeInLearn" class="ctrl-btn">🔄 切换模式</button><button id="resetLearnFromPanel" class="ctrl-btn">🏁 重选</button></div></div>`; const playWord = () => { speakWord(wordObj.word); }; document.getElementById('clickableWord').onclick = playWord; document.getElementById('speakWordBtn').onclick = playWord; if(currentIndex>0) document.getElementById('prevLearnBtn').onclick = () => { currentIndex--; renderLearningPanel(); }; document.getElementById('nextLearnBtn').onclick = () => { if(currentIndex+1 < total) { currentIndex++; renderLearningPanel(); } else { currentIndex++; renderLearningPanel(); } }; document.getElementById('switchModeInLearn').onclick = () => { currentMode = (currentMode === 'image' ? 'deep' : 'image'); renderLearningPanel(); }; document.getElementById('resetLearnFromPanel').onclick = () => { learningActive=false; renderModeSelection(); }; }
+        function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+        function showMemoryFlow(){ mainPanel.style.display='none'; renderModeSelection(); }
+        
+        loadSkinData();
+        memoryBtn.addEventListener('click', showMemoryFlow);
+        mathBtn.addEventListener('click', () => { mainPanel.style.display='none'; renderMathMenu(); });
+        shopBtn.addEventListener('click', () => { mainPanel.style.display='none'; renderShop(); });
+        mainPanel.style.display='flex'; dynamicContainer.style.display='none';
+        document.addEventListener('mousemove',(e)=>{ if(Math.random()<0.012 && shootingStars.length<6){ let s=new ShootingStar(); s.x=e.clientX; s.y=e.clientY; s.vx=(Math.random()-0.5)*3-1; s.vy=(Math.random()-1)*2-1.2; s.len=5; shootingStars.push(s); } });
+    })();
+</script>
+</body>
+</html>
